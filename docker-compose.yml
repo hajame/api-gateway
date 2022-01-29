@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  product-service:
+    restart: always
+    container_name: product-service
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./product-service:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 3000:3000
+
+  review-service:
+    restart: always
+    container_name: review-service
+    build:
+      context: ./review-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./review-service:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 3001:3001

@@ -1,16 +1,22 @@
 const express = require('express')
-const app = express()
 const cors = require('cors')
-let products = require('./db.js')
+const morgan = require('morgan')
+const middleware = require('./middleware.js')
 
+const app = express()
 app.use(cors())
+app.use(morgan(middleware.tinyLogger))
 
-const PORT = 3000
+let products = require('./db.js').products
 
-app.get('/api/products/', function(req, res) {
+app.get('/api/products/', function (req, res) {
     res.status(200).send(products)
 })
 
-app.listen(PORT, function() {
+const PORT = 3000
+app.use(middleware.unkownEndpoint)
+app.use(middleware.errorHandler)
+
+app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`)
 })

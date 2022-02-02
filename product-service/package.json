@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "service API for product information",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"

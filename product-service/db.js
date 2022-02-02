@@ -34,6 +34,6 @@ let products = [
     },
 ]
 
-module.exports = {
+export {
     products
 }

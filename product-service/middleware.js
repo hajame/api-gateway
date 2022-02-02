@@ -14,7 +14,7 @@ const tinyLogger = (tokens, req, res) => {
     ].join(' ')
 }
 
-const unkownEndpoint = (request, response) => {
+const unknownEndpoint = (request, response) => {
     response.status(404).send({
         error: 'unkown endpoint'
     })
@@ -27,8 +27,8 @@ const errorHandler = (error, rquest, response, next) => {
     next(error)
 }
 
-module.exports = {
+export {
     tinyLogger,
-    unkownEndpoint,
+    unknownEndpoint,
     errorHandler,
 }

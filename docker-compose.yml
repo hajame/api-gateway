@@ -24,3 +24,15 @@ services:
       - /usr/src/app/node_modules
     ports:
       - 3001:3001
+
+  api-gateway:
+    restart: always
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    volumes:
+      - ./api-gateway:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 4000:4000

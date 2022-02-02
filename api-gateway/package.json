@@ -1,7 +1,7 @@
 {
-  "name": "product-service",
-  "version": "1.1.0",
-  "description": "service API for product information",
+  "name": "api-gateway",
+  "version": "0.1.0",
+  "description": "API gateway that performs API composition",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.25.0",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "morgan": "^1.10.0"

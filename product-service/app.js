@@ -14,7 +14,12 @@ app.get('/api/products/', function (req, res) {
 })
 
 app.get('/api/products/:productId', function (req, res) {
-    res.status(200).send(products.find(p => p.productid === req.params.productId))
+    const foundProduct = products.find(p => p.productid == req.params.productId)
+    if (foundProduct) {
+        res.status(200).send(foundProduct)
+    } else {
+        res.status(404).send({ error: 'cannot find product with id ' + req.params.productId})
+    }
 })
 
 const PORT = 3000

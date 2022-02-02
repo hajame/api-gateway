@@ -14,7 +14,12 @@ app.get('/api/reviews/', function (req, res) {
 })
 
 app.get('/api/reviews/:reviewId', function (req, res) {
-    res.status(200).send(reviews.find(r => r.reviewid === req.params.reiviewId))
+    const foundReview = reviews.find(r => r.reviewid == req.params.reviewId)
+    if (foundReview) {
+        res.status(200).send(foundReview)
+    } else {
+        res.status(404).send({ error: 'cannot find review with id ' + req.params.reviewId})
+    }
 })
 
 const PORT = 3001

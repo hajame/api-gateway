@@ -19,28 +19,25 @@ app.get('/api/web/products/', async (req, res) => {
         
         const reviewTotals = getReviewTotals(reviews)
         
-        products = products.map(p => {
-            addReviewFields(reviewTotals, p)
-            return p
-        })
+        products = products.map(p => { return addReviewFields(reviewTotals, p) })
         
         return res.status(200).json(products)
     } catch (error) {
-        return res.status(403).json({ error: 'unexpexted error happened.' })
+        return sendError(res, error)
     }
 })
 
 app.get('/api/web/products/:productid', async (req, res) => {
     try {
-        const productResult = await axios.get('http://product-service:3000/api/products/'+req.params.productid)
         const reviewResult = await axios.get('http://review-service:3001/api/reviews/product/'+req.params.productid)
-        let product = productResult.data
+        const productResult = await axios.get('http://product-service:3000/api/products/'+req.params.productid)
         const reviews = reviewResult.data
+        let product = productResult.data
         product.reviews = reviews ? reviews : []
 
         return res.status(200).json(product)
     } catch (error) {
-        return res.status(403).json({ error: 'unexpexted error happened.' })
+        return sendError(res, error)
     }
 })
 
@@ -59,13 +56,12 @@ app.get('/api/mobile/products/', async (req, res) => {
             if (p.description.length > 100) {
                 p.description = p.description.substring(0, 100) + '...'
             }
-            addReviewFields(reviewTotals, p)
-            return p
+            return addReviewFields(reviewTotals, p)
         })
         
         return res.status(200).json(tinyProducts)
     } catch (error) {
-        return res.status(403).json({ error: 'unexpexted error happened.' })
+        return sendError(res, error)
     }
 })
 
@@ -85,7 +81,7 @@ app.get('/api/mobile/products/:productid', async (req, res) => {
 
         return res.status(200).json(product)
     } catch (error) {
-        return res.status(403).json({ error: 'unexpexted error happened.' })
+        return sendError(res, error)
     }
 })
 
@@ -97,10 +93,28 @@ app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`)
 })
 
-function addReviewFields(reviewTotals, p) {
-    const productRating = reviewTotals.get(p.productid)
-    p.rating_count = productRating.count
-    p.rating_avg = parseInt(productRating.rating_sum) / parseInt(productRating.count)
+function sendError(res, error) {
+    return res.status(502).json({ 
+        error: { 
+            status: '502 Bad Gateway', 
+            service_error: buildServiceError(error)   // attach error coming from the service
+        } 
+    })
+}
+
+function buildServiceError(error) {
+    return {
+        message: error.message,
+        url: error.config.url,
+        method: error.config.method
+    }
+}
+
+function addReviewFields(reviewTotals, product) {
+    const productRating = reviewTotals.get(product.productid)
+    product.rating_count = productRating.count
+    product.rating_avg = parseInt(productRating.rating_sum) / parseInt(productRating.count)
+    return product
 }
 
 

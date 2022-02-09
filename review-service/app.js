@@ -18,7 +18,16 @@ app.get('/api/reviews/:reviewId', function (req, res) {
     if (foundReview) {
         res.status(200).send(foundReview)
     } else {
-        res.status(404).send({ error: 'cannot find review with id ' + req.params.reviewId})
+        res.status(404).send({ error: 'cannot find review with reviewid ' + req.params.reviewId})
+    }
+})
+
+app.get('/api/reviews/product/:productId', function (req, res) {
+    const foundProductReviews = reviews.filter(r => r.productid == req.params.productId)
+    if (foundProductReviews) {
+        res.status(200).send(foundProductReviews)
+    } else {
+        res.status(404).send({ error: 'cannot find review with productid ' + req.params.productId})
     }
 })
 

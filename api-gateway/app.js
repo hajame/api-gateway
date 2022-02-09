@@ -15,7 +15,7 @@ app.get('/api/web/products/', async (req, res) => {
         let products = productResult.data
         const reviews = reviewResult.data
         
-        const reviewTotals = countReviewTotals(reviews)
+        const reviewTotals = getReviewTotals(reviews)
         
         products = products.map(p => {
             addReviewFields(reviewTotals, p)
@@ -35,7 +35,7 @@ app.get('/api/mobile/products/', async (req, res) => {
         let products = productResult.data
         const reviews = reviewResult.data
         
-        const reviewTotals = countReviewTotals(reviews)
+        const reviewTotals = getReviewTotals(reviews)
         
         let tinyProducts = products.map(p =>  {
             if (p.description.length > 100) {
@@ -65,7 +65,7 @@ function addReviewFields(reviewTotals, p) {
     p.rating_avg = parseInt(productRating.rating_sum) / parseInt(productRating.count)
 }
 
-function countReviewTotals(reviews) {
+function getReviewTotals(reviews) {
     let reviewTotals = new Map()
     reviews.forEach(review => {
         let total = reviewTotals.get(review.productid)

@@ -27,7 +27,7 @@ let products = [
         availability: 100
     },
     {
-        productid: 3,
+        productid: 4,
         name: 'Bicycle',
         description: 'Fast and furious!',
         availability: 55

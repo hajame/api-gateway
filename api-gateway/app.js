@@ -1,15 +1,13 @@
-import axios from 'axios'
 import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import { tinyLogger, unknownEndpoint, errorHandler } from './middleware.js'
 import { getReviewTotals } from './reviewCounter.js'
+import { fetchProductsAndReviews, fetchSingleProductAndReviews } from './asyncServiceCalls.js'
 
 const app = express()
 app.use(cors())
 app.use(morgan(tinyLogger))
-
-const serviceEndpoints = ['http://product-service:3000/api/products', 'http://review-service:3001/api/reviews']
 
 // API FOR WEB BROWSERS
 app.get('/api/web/products/', async (req, res) => {
@@ -20,16 +18,13 @@ app.get('/api/web/products/', async (req, res) => {
         
         return res.status(200).json(products)
     } catch (error) {
-        //return sendError(res, error)
+        return sendError(res, error)
     }
 })
 
 app.get('/api/web/products/:productid', async (req, res) => {
     try {
-        const reviewResult = await axios.get('http://review-service:3001/api/reviews/product/'+req.params.productid)
-        const productResult = await axios.get('http://product-service:3000/api/products/'+req.params.productid)
-        const reviews = reviewResult.data
-        let product = productResult.data
+        let { product, reviews } = await fetchSingleProductAndReviews(req.params.productid)
         product.reviews = reviews ? reviews : []
 
         return res.status(200).json(product)
@@ -60,10 +55,8 @@ app.get('/api/mobile/products/', async (req, res) => {
 
 app.get('/api/mobile/products/:productid', async (req, res) => {
     try {
-        const productResult = await axios.get('http://product-service:3000/api/products/'+req.params.productid)
-        const reviewResult = await axios.get('http://review-service:3001/api/reviews/product/'+req.params.productid)
-        let product = productResult.data
-        let reviews = reviewResult.data.slice(0,3)  // limit the number of reviews on mobile
+        let { product, reviews } = await fetchSingleProductAndReviews(req.params.productid)
+        reviews = reviews.slice(0,3)  // limit the number of reviews on mobile
         
         reviews.map(r => {
             if (r.text.length > 100) {
@@ -85,14 +78,6 @@ app.use(errorHandler)
 app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`)
 })
-
-async function fetchProductsAndReviews() {
-    const allEndpoints = serviceEndpoints.map(endpoint => axios(endpoint))
-    const results = await Promise.all(allEndpoints)
-    let products = results[0].data
-    const reviews = results[1].data
-    return { products, reviews }
-}
 
 function sendError(res, error) {
     return res.status(502).json({ 

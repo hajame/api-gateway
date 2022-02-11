@@ -9,21 +9,18 @@ const app = express()
 app.use(cors())
 app.use(morgan(tinyLogger))
 
+const serviceEndpoints = ['http://product-service:3000/api/products', 'http://review-service:3001/api/reviews']
+
 // API FOR WEB BROWSERS
 app.get('/api/web/products/', async (req, res) => {
     try {
-        const productResult = await axios.get('http://product-service:3000/api/products')
-        const reviewResult = await axios.get('http://review-service:3001/api/reviews')
-        let products = productResult.data
-        const reviews = reviewResult.data
-        
+        let { products, reviews } = await fetchProductsAndReviews()
         const reviewTotals = getReviewTotals(reviews)
-        
         products = products.map(p => { return addReviewFields(reviewTotals, p) })
         
         return res.status(200).json(products)
     } catch (error) {
-        return sendError(res, error)
+        //return sendError(res, error)
     }
 })
 
@@ -45,11 +42,7 @@ app.get('/api/web/products/:productid', async (req, res) => {
 // API FOR MOBILE APPLICATIONS
 app.get('/api/mobile/products/', async (req, res) => {
     try {
-        const productResult = await axios.get('http://product-service:3000/api/products')
-        const reviewResult = await axios.get('http://review-service:3001/api/reviews')
-        let products = productResult.data
-        const reviews = reviewResult.data
-        
+        let { products, reviews } = await fetchProductsAndReviews()        
         const reviewTotals = getReviewTotals(reviews)
         
         let tinyProducts = products.map(p =>  {
@@ -92,6 +85,14 @@ app.use(errorHandler)
 app.listen(PORT, function () {
     console.log(`Server listening on port ${PORT}`)
 })
+
+async function fetchProductsAndReviews() {
+    const allEndpoints = serviceEndpoints.map(endpoint => axios(endpoint))
+    const results = await Promise.all(allEndpoints)
+    let products = results[0].data
+    const reviews = results[1].data
+    return { products, reviews }
+}
 
 function sendError(res, error) {
     return res.status(502).json({ 
